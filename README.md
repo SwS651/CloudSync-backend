@@ -2,7 +2,7 @@
  .
 
 ## .env
-create .env in this directory
+create .env in root directory
 
 ```
 MONGO_URI=mongodb://localhost:27017/cloud-account-management
