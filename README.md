@@ -21,3 +21,7 @@ PORT=3000
 ### How to use?
 ```npm install```
 ```npm run dev```
+
+### Frontend Repository
+
+- [CloudSync-frontend](https://github.com/SwS651/CloudSync-frontend)
