@@ -388,6 +388,7 @@ const revokeDropbox = async (tokens) => {
 
 
 //List all drive and files data on dashboard  (/)
+//Dropbox API methods for getting drive and file lists
 const listAllDropboxWithFiles = async (uid) => {
     try{
        
@@ -428,9 +429,7 @@ const listAllDropboxWithFiles = async (uid) => {
 
 //Dropbox status (info)
 const getDropboxStorageUsage = async (account) => {
-    // const {account} = await initialDropbox(aid)
-    // Initialize Dropbox with the access token
-    // let tokens = JSON.parse(account.tokens)
+
     let tokens = JSON.parse(decrypt(account.tokens))
     const dbx = new Dropbox({ accessToken :tokens.access_token });
 

@@ -38,12 +38,9 @@ const upload = multer({ dest: 'temp/' }).single('file');
 // Combined route to fetch files from both Google Drive and Dropbox
 router.post('/', async (req, res) => {
     const { uid } = req.body;
-
     try {
-        // Fetch Google Drive files
+        // Fetch Google Driveand Dropbox files
         const googleDriveData = await listAllDriveWithFiles(uid);
-
-        // Fetch Dropbox files
         const dropboxData = await listAllDropboxWithFiles(uid);
 
         // Check if both responses are successful
@@ -65,13 +62,13 @@ router.post('/', async (req, res) => {
                 drive: { ...dropboxData.drive, provider: "dropbox" }
             }))
         ];
-
         // Return combined data
         res.status(200).json({
             success: true,
             message: "Data retrieved successfully",
             data: combinedData
         });
+        
     } catch (error) {
         console.error("Error fetching files:", error.message);
         res.status(500).json({

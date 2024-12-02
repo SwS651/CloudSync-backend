@@ -385,12 +385,7 @@ const fetchGooglefolder = async (fid = "root", aid) => {
         ))
 
         // if (!files?.length) return createErrorResponse("");
-
-        return {
-            success: true,
-            message: "No files found",
-            data: files
-        };
+        return { success: true, message: "No files found", data: files };
     } catch (error) {
         return {
             success: false,
@@ -431,6 +426,7 @@ const fetchAllGoogleDriveFiles = async (uid) => {
     }
 };
 
+//Google Drive API methods for getting drive and file lists
 const listAllDriveWithFiles = async (uid) => {
     try {
         const accounts = await Account.find({
@@ -440,15 +436,13 @@ const listAllDriveWithFiles = async (uid) => {
             ]
         }).populate({ path: 'credentialId', select: 'provider' });
 
-      
         if (!accounts) return createErrorResponse('Accounts not found');
 
         const data = await Promise.all(accounts.map(async (account) => {
             if (!(account.credentialId instanceof mongoose.Types.ObjectId)) {
                 console.log(account.email)
-                const usageResult = await googleDriveStatus(account._id);
+                const usageResult = await googleDriveStatus(account);
                 const filesResult = await fetchGooglefolder("root", account._id);
-
                 const drive = {
                     id: account._id,
                     email: account.email,
@@ -466,9 +460,13 @@ const listAllDriveWithFiles = async (uid) => {
             }
         }));
 
-        return createSuccessResponse(data, '');
+        return {success: true,message:'Successfully',data}
     } catch (error) {
-        return createErrorResponse(`An error occurred while listing files for all accounts. Error: ${error.message}`);
+        return {
+            success: false,
+            message: `An error occurred while listing files for all accounts. Error: ${error.message}`,
+            data: {},
+        }
     }
 }
 
@@ -759,43 +757,24 @@ const deleteFileFromGoogleDrive = async (aid,fid)=>{
 
 
 // export const driveStatus = async(email:String)=>{
-const googleDriveStatus = async(id)=>{
-    let account = await Account.findById(id)
-    if (!account) 
-    return {
-        succes:false,
-        message:"Account not found",
-        data:{}
-    }
+const googleDriveStatus = async(account)=>{
     try{
         
-        
+        // let account = await Account.findById(id)
+        // if (!account) return {succes:false,message:"Account not found",data:{}}
         
         let credential = await Credential.findById(account.credentialId )
-        if(!credential) 
-        return {
-            success:false,
-            message: "Credential not found",
-            data:{}
-        }
+        if(!credential) return {success:false,message: "Credential not found",data:{}}
         
         let decryptedCredential = JSON.parse(decrypt(credential.credential))
-        const { client_id, client_secret, redirect_uris } = decryptedCredential.installed || decryptedCredential.web;
+        const { client_id, client_secret, redirect_uris } = decryptedCredential.web;
         
-        
-        const oAuth2Client = new google.auth.OAuth2(
-            client_id,
-            client_secret,
-            redirect_uris
-        )
-        
+        const oAuth2Client = new google.auth.OAuth2( client_id, client_secret, redirect_uris )
 
-        let cre =JSON.parse(decrypt(account.tokens))
-      
-        // console.log(JSON.parse(decrypt(account.tokens)))
-        oAuth2Client.setCredentials(cre)
-    
+        let tokens =JSON.parse(decrypt(account.tokens))
+        
         // Initialize the Google Drive API
+        oAuth2Client.setCredentials(tokens)
         const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
         // Use the 'about.get' endpoint to retrieve user information including storage

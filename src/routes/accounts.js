@@ -2,8 +2,6 @@ const express = require('express')
 const mongoose = require('mongoose')
 
 const {
-
-
     getAccountById,
     getAccounts,
     createAccount,
@@ -16,7 +14,6 @@ const router = express.Router()
 
 
 
-// only used in development
 // GET Methods
 router.post('/', getAccounts); 
 router.post('/create', createAccount);
